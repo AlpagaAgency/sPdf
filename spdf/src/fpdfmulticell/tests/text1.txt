@@ -1,0 +1,1 @@
+Lorem <tag1>ipsum</tag1> <tag2>dolor</tag2> sit <tag3>amet</tag3>, <tag1>consectetur adipiscing elit</tag1>. Morbi dictum magna <tag2>pulvinar libero ultrices consequat</tag2>. <tag3>Integer tempor porta leo, sed rutrum urna pellentesque varius.</tag3>

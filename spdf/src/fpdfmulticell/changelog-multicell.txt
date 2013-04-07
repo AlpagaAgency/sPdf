@@ -1,0 +1,22 @@
+2012.03.12 - 2.0.2
+    - Bugfix(#283) - Empty content generated(multiple pdf documents)
+2012.01.14 
+    - Feature(#258) - Make the multiCell Class independent from FPDF 
+    - no need to extend FPDF class anymore, the fpdf object will be passed as a parameter to the multicell class
+    - class names, filenames and functions are changed
+2011.07.01
+    - Bug Fix: on page break the Start X was not maintained. 
+2009.07.18
+    - max tag length set to 25 characters
+    - BUG correction: 0 in tag name not working
+2007.01.21 
+    - added left, top, right and bottom padding to the multiCell Functions
+2006.09.18  
+    - added YPOS parameter to the tab for super/subscript posibility. ypos = '-1' means the relative position to the normal Y. 
+2006.07.30  
+    - added Paragraph Support(a sort of) - paragraphs can be specified with size='integer value' and PARAGRAPH_STRING character
+2006.05.18
+    - removed the NBLines functions
+    - added stringToLines function
+    - modified  multiCell to accept as data parameter an array type like the return from  stringToLines function
+    - these modifications does not affect the main class behavior, they are used for further developement and class extensions

@@ -1,0 +1,42 @@
+pre code{display:block;padding:0.5em;color:#DCCF8F;background:url(../gfx/pojoaque.jpg) repeat scroll left top #181914;}
+pre .comment,pre .template_comment,pre .diff .header,pre .doctype,pre .lisp .string,pre .javadoc{color:#586e75;font-style:italic;}
+pre .keyword,pre .css .rule .keyword,pre .winutils,pre .javascript .title,pre .method,pre .addition,pre .css .tag,pre .lisp .title,pre .nginx .title{color:#B64926;}
+pre .number,pre .command,pre .string,pre .tag .value,pre .phpdoc,pre .tex .formula,pre .regexp,pre .hexcolor{color:#468966;}
+pre .title,pre .localvars,pre .function .title,pre .chunk,pre .decorator,pre .builtin,pre .built_in,pre .lisp .title,pre .identifier,pre .title .keymethods,pre .id{color:#FFB03B;}
+pre .attribute,pre .variable,pre .instancevar,pre .lisp .body,pre .smalltalk .number,pre .constant,pre .class .title,pre .parent,pre .haskell .type{color:#b58900;}
+pre .css .attribute{color:#b89859;}
+pre .css .number,pre .css .hexcolor{color:#DCCF8F;}
+pre .css .class{color:#d3a60c;}
+pre .preprocessor,pre .pi,pre .shebang,pre .symbol,pre .diff .change,pre .special,pre .keymethods,pre .attr_selector,pre .important,pre .subst,pre .cdata{color:#cb4b16;}
+pre .deletion{color:#dc322f;}
+pre .tex .formula{background:#073642;}
+pre code{display:block;padding:0.5em;background:#272822;}
+pre .tag,pre .tag .title,pre .keyword,pre .literal,pre .change,pre .winutils,pre .flow,pre .lisp .title,pre .clojure .built_in,pre .nginx .title,pre .tex .special{color:#F92672;}
+pre code{color:#DDD;}
+pre code .constant{color:#66D9EF;}
+pre .class .title{color:white;}
+pre .attribute,pre .symbol,pre .symbol .string,pre .value,pre .regexp{color:#BF79DB;}
+pre .tag .value,pre .string,pre .subst,pre .title,pre .haskell .type,pre .preprocessor,pre .ruby .class .parent,pre .built_in,pre .sql .aggregate,pre .django .template_tag,pre .django .variable,pre .smalltalk .class,pre .javadoc,pre .django .filter .argument,pre .smalltalk .localvars,pre .smalltalk .array,pre .attr_selector,pre .pseudo,pre .addition,pre .stream,pre .envvar,pre .apache .tag,pre .apache .cbracket,pre .tex .command,pre .prompt{color:#A6E22E;}
+pre .comment,pre .java .annotation,pre .python .decorator,pre .template_comment,pre .pi,pre .doctype,pre .deletion,pre .shebang,pre .apache .sqbracket,pre .tex .formula{color:#75715E;}
+pre .keyword,pre .literal,pre .css .id,pre .phpdoc,pre .title,pre .haskell .type,pre .vbscript .built_in,pre .sql .aggregate,pre .rsl .built_in,pre .smalltalk .class,pre .diff .header,pre .chunk,pre .winutils,pre .bash .variable,pre .apache .tag,pre .tex .special,pre .request,pre .status{font-weight:bold;}
+pre .coffeescript .javascript,pre .javascript .xml,pre .tex .formula,pre .xml .javascript,pre .xml .vbscript,pre .xml .css,pre .xml .cdata{opacity:0.5;}
+body{background:#1d1d1d url('../gfx/background-dark.png') -50px -350px no-repeat;}body.dark{background:#1d1d1d url("../media/gfx/background.png") no-repeat -95px -400px;}body.dark h1{color:#cdcdcd;font-size:1.55em;}
+body.dark h2{color:#bc1c48;font-size:1.25em;}
+body.dark div{color:#efefef;}body.dark div p{color:#efefef;}
+body.dark strong{color:#bc1c48;}
+body .container{background:rgba(29, 29, 29, 0.7);padding:15px;margin-top:10px;}body .container>header{margin-bottom:30px;min-height:150px;}body .container>header .intro{padding-top:50px;}body .container>header .intro p{color:#dedede;font-family:helvetica;font-size:1.3em;font-weight:normal;}
+body .container .block{color:#fff;text-align:center;font-weight:bold;}body .container .block span.icon{margin:30px 0px 0px 0px;font-size:60pt;color:#fff;font-weight:normal;}
+body .container .block span.icon a{color:#fff;font-size:60pt;}
+body .container .block p{background:#fff;width:100%;padding:10px;}
+body .container .block:hover p{border-color:#2ba6cb;background:#2ba6cb;cursor:pointer;color:#fff;}
+body .container .block:hover a{color:#fff;}
+body .container .block.blue p{border-color:#2ba6cb;background:#2ba6cb;}
+body .container .block.blue:hover .icon a,body .container .block.blue:hover p{background:#fff;border-color:#fff;color:#1d1d1d;}
+body .container .block.magenta p{border-color:#bc1c48;background:#bc1c48;}
+body .container .block.magenta:hover .icon a,body .container .block.magenta:hover p{background:#fff;border-color:#fff;color:#1d1d1d;}
+body .container .block.yellow p{border-color:#ffc40d;background:#ffc40d;}
+body .container .block.yellow:hover .icon a,body .container .block.yellow:hover p{background:#fff;border-color:#fff;color:#1d1d1d;}
+body>footer{text-align:center;color:#dedede;padding-bottom:30px;}
+section#menu .blockElement{display:none;-moz-column-width:170px;-moz-column-count:0;-moz-column-gap:50px;-moz-column-rule-color:#eeeeee;-webkit-column-width:170px;-webkit-column-count:0;-webkit-column-gap:50px;-webkit-column-rule-color:#eeeeee;column-width:170px;column-count:0;column-gap:50px;column-rule-color:#eeeeee;-moz-column-rule-color:#999999;-moz-column-rule-style:solid;-moz-column-rule-width:1px;-webkit-column-rule-color:#999999;-webkit-column-rule-style:solid;-webkit-column-rule-width:1px;column-rule-color:#999999;column-rule-style:solid;column-rule-width:1px;-moz-column-gap:80px;-webkit-column-gap:80px;column-gap:80px;}
+section#menu:hover .blockElement{-webkit-transition:0.2s all ease-out;-moz-transition:0.2s all ease-out;transition:0.2s all ease-out;display:block;}
+.upless ul{list-style:none;}
