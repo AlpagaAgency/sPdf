@@ -1,0 +1,26 @@
+<p><t3>Description</t3>
+
+	This method allows printing of <t4><TAG></t4> formatted text with line breaks. They can be automatic (as soon as the text reaches the right border of the cell) or explicit (via the <pb>\\n</pb> character).</p>
+
+<t3>Features:</t3>
+<p>	- Text can be <hh>aligned</hh>, <hh>cente~~~red</hh> or <hh>justified</hh>
+	- Different <font>Font</font>, <size>Sizes</size>, <style>Styles</style>, <color>Colors</color> can be used 
+	- The cell block can be framed and the background painted
+	- <style href='www.fpdf.org'>Links</style> can be used in any tag
+	- <t4>TAB</t4> spaces (<pb>\	</pb>) can be used
+	- Variable Y relative positions can be used for <ss ypos='-0.8'>Subscript</ss> or <ss ypos='1.1'>Superscript</ss>
+	- Cell padding (left, right, top, bottom)
+	- Controlled Tag Sizes can be used</p>
+
+	<size size='50' >Paragraph Example:~~~</size><font> - Paragraph 1</font>
+	<p size='60' > ~~~</p><font> - Paragraph 2</font>
+	<p size='60' > ~~~</p> - Paragraph 2
+	<p size='70' >Sample text~~~</p><p> - Paragraph 3</p>
+	<p size='50' >Sample text~~~</p> - Paragraph 1
+	<p size='60' > ~~~</p><t4> - Paragraph 2</t4>
+
+<t3>Observations:</t3>
+<p>
+	- If no <t4><TAG></t4> is specified then the FPDF current settings(font, style, size, color) are used
+	- The <t4>ttags</t4> tag name is reserved for the TAB SPACES
+</p>
