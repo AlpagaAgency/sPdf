@@ -35,12 +35,6 @@
 </head>
 <body class="dark">
 	<section class="container row">
-		<header class="row">
-			<div class="two columns"><img src="/gfx/logo.png" /></div>
-			<div class="ten columns intro">
-				<p>Ensemble des librairies créées, modifiées, utilisées par Guanako. En ce lieu, les explications scabreuses n'ont pas leur place!</p>
-			</div>
-		</header>
 		<div id="content-wrapper">
 			<h1>sPdf - générateur de pdf</h1>
 			<h2>Installation</h2>
