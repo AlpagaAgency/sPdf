@@ -1,6 +1,0 @@
-<tag1>Lorem ipsum dolor</tag1>
-<tag2>Aenean commodo pretium</tag2>
-<tag3>Adipiscing elit vel</tag3>
-<tag4>Morbi interdum mollis</tag4>
-<tag5>Lorem ipsum dolor augue</tag5>
-<tag6>Aenean commodo</tag6>

@@ -1,5 +1,0 @@
-The Fpdf Addons are released under the GNU GPL 3.0 license. It’s free for use in GPL and GPL compatible open source software.
-For more details about GPL License please visit http://www.gnu.org/copyleft/gpl.html. 
-
-If you want to use them in a commercial software or closed source software, you'll have to buy a commercial license.
-For the End User License Agreement for Commercioal usage visit: http://www.interpid.eu/fpdf-addons/eula
