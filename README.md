@@ -1,4 +1,4 @@
 Spdf
 ===
 
-Author: Frédéric Faltin - Alpaga Studio
+Documentation - http://alpagastudio.github.io/sPdf/
