@@ -1,6 +1,6 @@
 <?php
 
-/*	Copyright 2013 Frédéric Faltin <frederic.faltin@alpagastudio.be>
+/*	Copyright 2013 Fr?d?ric Faltin <frederic.faltin@alpagastudio.be>
  * 	This program is free software: you can redistribute it and/or modify
  *    it under the terms of the GNU General Public License as published by
  *     the Free Software Foundation, either version 3 of the License, or
@@ -16,7 +16,7 @@
 */
 	
 	include("fpdf/FPDF.php");
-	include("fpdi/FPDI.php");
+	include("fpdi/fpdi.php");
 	include("fpdfmulticell/fpdfMulticell.php");
 
 	class sPdf extends FPDI {
@@ -31,6 +31,8 @@
 			protected $backgroundTemplateFromPg=null;
 			protected $useNum=false;
 			protected $extgstates=array();
+			protected $pageCount = 1;
+			protected $addingTableRow = false;
 			
 			public function __construct($defaultSize='P|mm|210,297',$margin = array(0,0,0,0)) {
 			
@@ -47,7 +49,8 @@
 				$this->SetRightMargin($margin[1]);
 				$this->SetAutoPageBreak(true, $margin[2]);
 				// add document
-				$this->Open();
+				// $this->Open();
+				$this->state = 1;
 				
 				// define multicell class
 				$styler = new \fpdfMulticell($this);
@@ -63,6 +66,11 @@
 				return $this;
 			}
 			
+			public function getFontFamily()
+			{
+				return $this->FontFamily;
+			}
+
 			public function defineTemplatePath($templateFile) {
 				$this->templateFile = $templateFile;
 				return $this;
@@ -72,7 +80,7 @@
 				// get the template's path
 				if (!$this->alreadyImported || $this->currentTemplate!=$this->templateFile) {
 					$this->currentTemplate = $this->templateFile;
-					$pagecount = $this->setSourceFile($this->templateFile); 
+					$this->pageCount = $this->setSourceFile($this->templateFile); 
 				}
 				// import page 
 				$tplidx = $this->importPage($page2import); 
@@ -82,6 +90,10 @@
 				$this->alreadyImported = true;
 			}
 			
+			public function getPageCount() {
+				return $this->setSourceFile($this->templateFile);
+			}
+
 			public function setMargin($top,$right,$bottom,$left) {
 				$this->margin = array($top,$right,$bottom,$left);
 				$this->SetMargins($top,$left,($right!=null?$right:$left));
@@ -161,6 +173,13 @@
 					$this->makePosition($arr['pos']);
 				}
 				
+				if (isset($arr["fillColor"]))
+				{
+					$colors = explode(',', $arr["fillColor"]);
+					$this->SetFillColor($colors[0], $colors[1], $colors[2]);
+					$arr["fill"] = true;
+				}
+
 				if ($type == "simple") {
 					$this->Cell(
 						isset($arr['width'])?$arr['width']:$this->getPdfSize('width')-$this->margin[1]-$this->margin[3]-(isset($arr['pos'])?$arr['pos'][0]:$this->getPosition('x')-$this->margin[3]),
@@ -177,7 +196,6 @@
 						isset($arr['height'])?$arr['height']:7,
 						$this->escapeString($arr['value']),
 						isset($arr['border'])?$arr['border']:0,
-						isset($arr['ln'])?$arr['ln']:0,
 						isset($arr['align'])?$arr['align']:'L',
 						isset($arr['fill'])?$arr['fill']:false,
 						isset($arr['padding'])?$arr['padding'][0]:0,
@@ -199,12 +217,77 @@
 				$this->verboseCell($arr, "multi");
 				return $this;
 			}
+
+			protected function computeNbLines($w,$txt)
+			{
+				//Computes the number of lines a MultiCell of width w will take
+				$cw=&$this->CurrentFont['cw'];
+				if($w==0)
+					$w=$this->w-$this->rMargin-$this->x;
+				$wmax=($w-2*$this->cMargin)*1000/$this->FontSize;
+				$s=str_replace("\r",'',$txt);
+				$nb=strlen($s);
+				if($nb>0 and $s[$nb-1]=="\n")
+					$nb--;
+				$sep=-1;
+				$i=0;
+				$j=0;
+				$l=0;
+				$nl=1;
+				while($i<$nb)
+				{
+					$c=$s[$i];
+					if($c=="\n")
+					{
+						$i++;
+						$sep=-1;
+						$j=$i;
+						$l=0;
+						$nl++;
+						continue;
+					}
+					if($c==' ')
+						$sep=$i;
+					$l+=$cw[$c];
+					if($l>$wmax)
+					{
+						if($sep==-1)
+						{
+							if($i==$j)
+								$i++;
+						}
+						else
+							$i=$sep+1;
+						$sep=-1;
+						$j=$i;
+						$l=0;
+						$nl++;
+					}
+					else
+						$i++;
+				}
+				return $nl;
+			}
 		
+			public function checkPageBreakTrigger($h)
+			{
+				if($this->GetY()+$h>$this->PageBreakTrigger - $this->margin[2]) {
+        			$this->newPage();
+					return true;
+				}
+				return false;
+			}
+
 			public function addTable($arr)	{
-				
+			
 				$column = $arr['column'];
 				$size = $arr['columnWidth'];
 
+				$startPos = $arr["pos"];
+				if (is_null($startPos[0])) $startPos[0] = $this->getPosition("x");
+				if (is_null($startPos[1])) $startPos[1] = $this->getPosition("y");
+
+				
 				if (isset($arr['header'])) {
 					$header = $arr['header'];
 					$headerStyle = $arr['headerStyle'];
@@ -213,10 +296,15 @@
 						$this->makePosition($arr['pos']);
 					}
 					
+					$posY = $this->getPosition("y");
+					$posX = $this->getPosition("x");
+					$nextPosY = $posY;
+
 					for($i=0;$i<$column;$i++) {
-						
+						$this->setPosition("y",$posY);
+						$this->setPosition("x",$posX);
+
 						$headerStyle[$i] = isset($headerStyle[$i])?$headerStyle[$i]:array();
-						
 						$this->verboseCell(array (
 							'width' => $size[$i],
 							'height' => isset($headerStyle[$i]['height'])?$headerStyle[$i]['height']:7,
@@ -224,30 +312,89 @@
 							'border' => isset($headerStyle[$i]['border'])?$headerStyle[$i]['border']:0,
 							'align' => isset($headerStyle[$i]['align'])?$headerStyle[$i]['align']:'L',
 							'ln' => 0,
-						),'simple');
+						),'multi');
+
+						$posX = $posX + $size[$i];
+						$nextPosY = $this->getPosition("y") > $nextPosY ? $this->getPosition("y") : $nextPosY;
 					}
-					$this->Ln();
+					$this->setPosition("y", $nextPosY);
+				}
+
+				if (isset($arr['startLine']) && $arr['startLine'] == true) {					
+					if (isset($arr['pos'])) {
+						$this->makePosition($arr['pos']);
+					}
+					// Trait de terminaison
+					$this->Cell(array_sum($size),0,'','T');
+					$this->Ln();	
 				}
 				
+				$dataIsModulo = isset($arr["modulo"]) ? true : false;
+				$bordersColor = isset($arr["borders"]) ? $this->SetDrawColor($arr["borders"]) : false;
+				if ($dataIsModulo)
+					$moduloColors = explode(",", $arr["modulo"]);
+
 				if (isset($arr['content'])) {
 					$data = $arr['content'];
 					$columnStyle = $arr['columnStyle'];
-					
+					$j = 0;
+					$this->SetAutoPageBreak(false);
+					$this->addingTableRow = true;
 					foreach($data as $row) {
+						//
+						$isModulo = false;
+						if ($dataIsModulo) {
+							$isModulo = $j % 2 === 1;
+							$j++;
+							if ($isModulo) {
+								$this->SetFillColor($moduloColors[0],$moduloColors[1],$moduloColors[2]);
+							}
+						}
+						//
 						if (isset($arr['pos'])) {
 							$this->makePosition($arr['pos']);
 						}
+
+						$startPosX = $this->getPosition("x");
+						$posY = $this->getPosition("y");
+						$posX = $this->getPosition("x");
+						$nextPosY = $posY;
+						$borders = [];
+						// Verify with the height if a new page is needed
+						$isNewPage = $this->checkIfnewPageIsNeededForTable($row,$arr);
+						if ($isNewPage) {
+							$posY = $this->margin[0];
+							$nextPosY = $this->margin[0];
+							$posX = $startPos[0];
+						}
+						// s($nextPosY);
 						for($i=0;$i<$column;$i++) {
+							$this->setPosition("y",$posY);
+							$this->setPosition("x",$posX);
+							$border = [
+								"border" => isset($columnStyle[$i]['border'])?$columnStyle[$i]['border']:0,
+								"x" => [ $posX ]
+							];
 							$this->verboseCell(array(
 								'width' => $size[$i],
 								'height' => isset($columnStyle[$i]['height'])?$columnStyle[$i]['height']:6,
 								'value' => $row[$i],
-								'border' => isset($columnStyle[$i]['border'])?$columnStyle[$i]['border']:0,
+								'border' => 0,
+								'fill' => $isModulo,
 								'align' => isset($columnStyle[$i]['align'])?$columnStyle[$i]['align']:'L',
 								'ln' => 0,
-							),'simple');
+							),'multi');
+
+							$posX = $posX + $size[$i];
+							$border["x"][] = $posX;
+							$nextPosY = $this->getPosition("y") > $nextPosY ? $this->getPosition("y") : $nextPosY;
+							$borders[] = $border;
 						}
-						$this->Ln();
+						$this->newLine(0);
+
+						$this->drawBorders($borders, $posY, $nextPosY);
+						$this->setPosition("x",$startPosX);
+						$this->setPosition("y",$nextPosY);
 					}
 					
 					if (!isset($arr['closeLine']) || $arr['closeLine'] == true) {					
@@ -258,9 +405,58 @@
 						$this->Cell(array_sum($size),0,'','T');
 						$this->Ln();	
 					}
+					$this->SetAutoPageBreak(true);
+					$this->addingTableRow = false;
 				}
 				
 				return $this;
+			}
+
+			private function checkIfnewPageIsNeededForTable($data, $arr)
+			{
+				$size = $arr['columnWidth'];
+				$columnStyle = $arr['columnStyle'];
+				//Calculate the height of the row
+				$nb=0;
+				$ln=0;
+				for($i=0;$i<count($data);$i++) {
+					$nb=max($nb,$this->computeNbLines($size[$i],$data[$i]));
+					$ln=max($ln, isset($columnStyle[$i]['height'])?$columnStyle[$i]['height']:6);
+				}
+				$h=$ln*$nb;
+				return $this->checkPageBreakTrigger($h);
+			}
+
+			public function checkIfNewPageIsNeeded($data, $width, $height)
+			{
+				if (!$this->addingTableRow) {
+					$nb = $this->computeNbLines($width,$data);
+					return $this->checkPageBreakTrigger($nb*$height);
+				}
+
+				return false;
+			}
+
+			private function drawBorders($borders, $y1, $y2)
+			{
+				foreach ($borders as $border):
+					foreach(str_split($border["border"]) as $letter):
+						switch($letter):
+							case "T":
+								$this->addLine($border["x"][0],$y1,$border["x"][1],$y1);
+							break;
+							case "L":
+								$this->addLine($border["x"][0],$y1,$border["x"][0],$y2);
+							break;
+							case "B":
+								$this->addLine($border["x"][0],$y2,$border["x"][1],$y2);
+							break;
+							case "R":
+								$this->addLine($border["x"][1],$y1,$border["x"][1],$y2);
+							break;
+						endswitch;
+					endforeach;
+				endforeach;
 			}
 			
 			public function addImage($file, $a=array()) {
@@ -365,6 +561,14 @@
 				if ($type == "xy") $this->SetXY($value[0],$value[1]);
 				return $this;
 			}
+
+			public function resetPosition($type, $value=false)
+			{
+				$method = sprintf("Set%s", strtoupper($type));
+				// s($value ? $value : $this->margin[ $type == "x" ? 3 : 0 ]);
+				$this->$method($value ? $value : $this->margin[ $type == "x" ? 3 : 0 ]);
+				return $this;
+			}
 			
 			//*********************************************************************
 			// End of dimension's function
@@ -424,8 +628,19 @@
 				return $this;
 			}
 			
-			public function addLine ($x1,$y1,$x2,$y2) {
-				$this->Line(20, 20, 190, 20);
+			public function addLine ($x1=null,$y1=null,$x2=null,$y2=null) {
+				if (is_null($x1)) $x1 = $this->margin[1];
+				if (is_null($y1)) {
+					$this->setPosition("y", $this->getPosition("y") + 3);
+					$y1 = $this->getPosition("y");
+				}
+				if (is_null($x2)) $x2 = $this->getPdfSize("width") - $this->margin[1];
+				if (is_null($y2)) {
+					$y2 = $this->getPosition("y");
+					$this->setPosition("y", $this->getPosition("y") + 3);
+				}
+
+				$this->Line($x1,$y1,$x2,$y2);
 				return $this;
 			}
 			
@@ -557,7 +772,7 @@
 				if($y === '')
 					$y=$this->y;
 				if($angle_x <= -90 || $angle_x >= 90 || $angle_y <= -90 || $angle_y >= 90)
-					$this->Error('Please use values between -90° and 90° for skewing');
+					$this->Error('Please use values between -90? and 90? for skewing');
 				$x*=$this->k;
 				$y=($this->h-$y)*$this->k;
 				//calculate elements of transformation matrix
@@ -581,13 +796,39 @@
 				$this->_out('Q');
 				return $this;
 			}
+
+			function textWithRotation($x, $y, $txt, $txt_angle, $font_angle=0) {
+				$font_angle+=90+$txt_angle;
+				$txt_angle*=M_PI/180;
+				$font_angle*=M_PI/180;
+
+				$txt_dx=cos($txt_angle);
+				$txt_dy=sin($txt_angle);
+				$font_dx=cos($font_angle);
+				$font_dy=sin($font_angle);
+
+				$s=sprintf('BT %.2F %.2F %.2F %.2F %.2F %.2F Tm (%s) Tj ET',$txt_dx,$txt_dy,$font_dx,$font_dy,$x*$this->k,($this->h-$y)*$this->k,$this->_escape($txt));
+				if ($this->ColorFlag)
+				$s='q '.$this->TextColor.' '.$s.' Q';
+				$this->_out($s);
+				return $this;
+			}
 			
 			//*********************************************************************
 			// End of transfroamtion
 			//*********************************************************************
 			
 			public function generate ($name="",$dest="") {
-				$this->Output($name,$dest);
+				return $this->Output($name,$dest);
+			}
+
+			/*
+			 * Save the document to a path
+			 *
+			 * @param string $path
+			 */
+			public function saveTo($path) {
+				return $this->generate($path, 'F');
 			}
 			
 			//*********************************************************************
@@ -643,6 +884,32 @@
 				parent::_putresources();
 			}
 			
+
+			public function __call($method, $arguments) {
+				if (! preg_match('/^(fget|fset|fis)([A-Z][a-z0-9]*)$/i', $method, $matches)) {
+					throw new \BadMethodCallException(sprintf('Method %s does not exist', $method));
+				}
+
+				$action = $matches[1];
+				$property = $matches[2];
+
+				if (!array_key_exists($property, get_object_vars($this))) {
+					throw new \BadMethodCallException(sprintf('Property %s does not exist', $property));
+				}
+
+				switch ($action) {
+					case 'fget':
+						return $this->$property;
+					case 'fis':
+						if (!preg_match('/^is[A-Z0-9]/i', $property)) {
+							throw new \BadMethodCallException('Property used with this getter must start with is*');
+						}
+						return (bool) $this->$property;
+					case 'fset':
+						$value = $arguments[0];
+						$this->$property = $value;
+						return $this;
+				}
+			}
 			
 	}
-	

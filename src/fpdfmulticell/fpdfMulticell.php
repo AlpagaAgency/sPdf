@@ -178,7 +178,7 @@ private static $_singleton = array();    //implements the Singleton Pattern
         );
 
         //if another measure unit is used ... calculate your OWN
-        $this->aDataExtraInfo["TAB_WIDTH"] *= (72/25.4) / $this->oFpdf->k;
+        $this->aDataExtraInfo["TAB_WIDTH"] *= (72/25.4) / $this->oFpdf->fgetk();
         /*
             $this->oFontInfo - do not reset, once read ... is OK!!!
         */
@@ -244,8 +244,8 @@ private static $_singleton = array();    //implements the Singleton Pattern
             $this->oFpdf->SetFont($style['family'], $style['style'], $style['size']);
             //this is textcolor in FPDF format
             if (isset($style['textcolor_fpdf'])) {
-                $this->oFpdf->TextColor = $style['textcolor_fpdf'];
-                $this->oFpdf->ColorFlag=($this->oFpdf->FillColor != $this->oFpdf->TextColor);
+                $this->oFpdf->fsetTextColor($style['textcolor_fpdf']);
+                $this->oFpdf->fsetColorFlag($this->oFpdf->fgetFillColor() != $this->oFpdf->fgetTextColor());
             }else{
                 if ($style['color'] <> ""){//if we have a specified color
                     $temp = explode(",", $style['color']);
@@ -262,10 +262,10 @@ private static $_singleton = array();    //implements the Singleton Pattern
     * @access   protected
     */
     protected function saveCurrentStyle(){
-        $this->TagStyle['DEFAULT']['family'] = $this->oFpdf->FontFamily;;
-        $this->TagStyle['DEFAULT']['style'] = $this->oFpdf->FontStyle;
-        $this->TagStyle['DEFAULT']['size'] = $this->oFpdf->FontSizePt;
-        $this->TagStyle['DEFAULT']['textcolor_fpdf'] = $this->oFpdf->TextColor;
+        $this->TagStyle['DEFAULT']['family'] = $this->oFpdf->fgetFontFamily();
+        $this->TagStyle['DEFAULT']['style'] = $this->oFpdf->fgetFontStyle();
+        $this->TagStyle['DEFAULT']['size'] = $this->oFpdf->fgetFontSizePt();
+        $this->TagStyle['DEFAULT']['textcolor_fpdf'] = $this->oFpdf->fgetTextColor();
         $this->TagStyle['DEFAULT']['color'] = "";
     }//function saveCurrentStyle
 
@@ -287,9 +287,9 @@ private static $_singleton = array();    //implements the Singleton Pattern
         $aExtraInfo['CURRENT_LINE_BR'] = "";
 
         if($w==0)
-            $w=$this->oFpdf->w - $this->oFpdf->rMargin - $this->oFpdf->x;
+            $w=$this->oFpdf->fgetw() - $this->oFpdf->fgetrMargin() - $this->oFpdf->fgetx();
 
-        $wmax = ($w - 2 * $this->oFpdf->cMargin) * 1000;//max width
+        $wmax = ($w - 2 * $this->oFpdf->fgetcMargin()) * 1000;//max width
 
         $aLine = array();//this will contain the result
         $return_result = false;//if break and return result
@@ -348,8 +348,8 @@ private static $_singleton = array();    //implements the Singleton Pattern
                 if (!isset($fw[$tag]) || ($tag == "") || ($this->bDoubleTags)){
                     //if this font was not used untill now,
                     $this->applyStyle($tag);
-                    $fw[$tag]['w'] = $this->oFpdf->CurrentFont['cw'];//width
-                    $fw[$tag]['s'] = $this->oFpdf->FontSize;//size
+                    $fw[$tag]['w'] = $this->oFpdf->fgetCurrentFont()['cw'];//width
+                    $fw[$tag]['s'] = $this->oFpdf->fgetFontSize();//size
                 }
 
                 $char_width = $fw[$tag]['w'][$c] * $fw[$tag]['s'];
@@ -556,7 +556,7 @@ private static $_singleton = array();    //implements the Singleton Pattern
         $doBreak = false;
         
         do{ 
-            $iLeftHeight = $this->oFpdf->h - $this->oFpdf->bMargin - $this->oFpdf->GetY() - $pad_top - $pad_bottom;
+            $iLeftHeight = $this->oFpdf->fgeth() - $this->oFpdf->fgetbMargin() - $this->oFpdf->GetY() - $pad_top - $pad_bottom;
             $bAddNewPage = false;
             
             //Numer of rows that have space on this page:
@@ -629,7 +629,7 @@ private static $_singleton = array();    //implements the Singleton Pattern
         $b = $b1 = $b2 = $b3 = '';//borders
         
         if($w==0)
-            $w = $this->oFpdf->w - $this->oFpdf->rMargin - $this->oFpdf->x;        
+            $w = $this->oFpdf->fgetw() - $this->oFpdf->fgetrMargin() - $this->oFpdf->fgetx();        
         
         /**
          * If the vertical padding is bigger than the width then we ignore it
@@ -725,7 +725,7 @@ private static $_singleton = array();    //implements the Singleton Pattern
             
             //check if there is engough space on the current page
             $currentY = $this->oFpdf->getY();
-            $restHeight = (int) $this->oFpdf->h - $this->oFpdf->tMargin - $this->oFpdf->bMargin;
+            $restHeight = (int) $this->oFpdf->fgeth() - $this->oFpdf->fgettMargin() - $this->oFpdf->fgetbMargin();
             
             //see what border we draw:
             if($first_line && $last_line){
@@ -760,7 +760,7 @@ private static $_singleton = array();    //implements the Singleton Pattern
         //APPLY THE DEFAULT STYLE
         $this->applyStyle("DEFAULT");
 
-        $this->x=$this->oFpdf->lMargin;
+        $this->x=$this->oFpdf->fgetlMargin();
     }//function MultiCellExt
 
 
@@ -837,7 +837,7 @@ private static $_singleton = array();    //implements the Singleton Pattern
     protected function printLine($w, $h, $aTxt, $align='J'){
 
         if($w==0)
-            $w = $this->oFpdf->w - $this->oFpdf->rMargin - $this->oFpdf->x;
+            $w = $this->oFpdf->fgetw() - $this->oFpdf->fgetrMargin() - $this->oFpdf->fgetx();
 
         $wmax = $w; //Maximum width
 
@@ -852,12 +852,12 @@ private static $_singleton = array();    //implements the Singleton Pattern
         }
 
         //default
-        $w_first = $this->oFpdf->cMargin;
+        $w_first = $this->oFpdf->fgetcMargin();
 
         switch($align){
             case 'J':
                 if ($total_spaces > 0)
-                    $extra_space = ($wmax - 2 * $this->oFpdf->cMargin - $total_width) / $total_spaces;
+                    $extra_space = ($wmax - 2 * $this->oFpdf->fgetcMargin() - $total_width) / $total_spaces;
                 else $extra_space = 0;
                 break;
             case 'L':
@@ -866,7 +866,7 @@ private static $_singleton = array();    //implements the Singleton Pattern
                 $w_first = ($wmax - $total_width) / 2;
                 break;
             case 'R':
-                $w_first = $wmax - $total_width - $this->oFpdf->cMargin;;
+                $w_first = $wmax - $total_width - $this->oFpdf->fgetcMargin();
                 break;
         }
 
@@ -876,8 +876,8 @@ private static $_singleton = array();    //implements the Singleton Pattern
         }
 
         $last_width = $wmax - $w_first;
-
-        while (list($key, $val) = each($aTxt)) {
+        foreach ($aTxt as $key => $val) {
+        // while (list($key, $val) = each($aTxt)) {
             
             $bYPosUsed = false;
                        
@@ -888,8 +888,8 @@ private static $_singleton = array();    //implements the Singleton Pattern
             $extra_X = 0;
             
             if ($val['ypos'] != 0){
-                $lastY = $this->oFpdf->y;
-                $this->oFpdf->y = $lastY - $val['ypos'];
+                $lastY = $this->oFpdf->fgety();
+                $this->oFpdf->fsety($lastY - $val['ypos']);
                 $bYPosUsed = true;
             }
 
@@ -904,7 +904,7 @@ private static $_singleton = array();    //implements the Singleton Pattern
 
                 $this->ws = $temp_X;
 
-                $this->oFpdf->_out(sprintf('%.3f Tw', $temp_X * $this->oFpdf->k));
+                $this->oFpdf->_out(sprintf('%.3f Tw', $temp_X * $this->oFpdf->fgetk()));
 
                 $extra_X = $extra_space * $val['spaces'];//increase the extra_X Space
 
@@ -923,7 +923,7 @@ private static $_singleton = array();    //implements the Singleton Pattern
                 $last_width -= $extra_X;
             }//fi
             
-            if ($bYPosUsed) $this->oFpdf->y = $lastY;
+            if ($bYPosUsed) $this->oFpdf->fsety($lastY);
             
         }//while
 
