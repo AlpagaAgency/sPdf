@@ -420,7 +420,12 @@
 				$nb=0;
 				$ln=0;
 				for($i=0;$i<count($data);$i++) {
-					$nb=max($nb,$this->computeNbLines($size[$i],$data[$i]));
+					if (!(isset($size[$i]) && isset($data[$i]))) 
+						continue;
+					$nb=max($nb,$this->computeNbLines(
+						$size[$i],
+						$data[$i])
+					);
 					$ln=max($ln, isset($columnStyle[$i]['height'])?$columnStyle[$i]['height']:6);
 				}
 				$h=$ln*$nb;
